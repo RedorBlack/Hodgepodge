@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
+
 /**
  * @Author: Red
  * @Descpription:
@@ -33,7 +35,7 @@ public class RedController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Red> create(@RequestBody Red blog) {
+    public Mono<Red> create(@Valid @RequestBody Red blog) {
         log.debug("create Blog with blog : {}", blog);
         return redService.createRed(blog);
     }

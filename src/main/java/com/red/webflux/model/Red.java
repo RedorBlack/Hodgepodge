@@ -3,6 +3,8 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @Author: Red
  * @Descpription:
@@ -14,6 +16,7 @@ public class Red extends BaseEntity {
 
 
 
+    @NotNull(message = "name 不能为空")
     @Field("red_name")
     private String name;
 
