@@ -1,5 +1,6 @@
 package com.red.webflux.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.model.Red;
 import com.red.webflux.service.RedService;
@@ -30,6 +31,7 @@ public class RedController {
     private RedService redService;
 
     @GetMapping
+    @SentinelResource("findAll")
     public Flux<Red> findAll() {
         log.info("findAll Blog");
         return redService.findAll();
