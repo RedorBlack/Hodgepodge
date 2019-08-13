@@ -1,7 +1,10 @@
 package com.red.webflux.service.impl;
 
+
 import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.model.Red;
+import com.red.webflux.mongo.MongoPageHelper;
+import com.red.webflux.mongo.PageResult;
 import com.red.webflux.repository.RedRepository;
 import com.red.webflux.service.RedService;
 import org.bson.types.ObjectId;
@@ -30,7 +33,8 @@ public class RedServiceImpl implements RedService {
     @Autowired
     private RedRepository redRepository;
 
-
+    @Autowired
+    private MongoPageHelper mongoPageHelper;
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -80,5 +84,12 @@ public class RedServiceImpl implements RedService {
     @Override
     public Mono<Red> findByIdAndDeleteIsFalse(String id) {
         return redRepository.findByIdAndDeleteIsFalse(id).switchIfEmpty(Mono.error(new Exception("没有查找到记录:" + id)));
+    }
+
+    @Override
+    public PageResult<Red> search() {
+        Query query = Query.query(Criteria.where("version").is(0));
+        return mongoPageHelper.pageQuery(query, Red.class, 3, 1, a -> a, null);
+//        mongoPageHelper.pageQuery(query, Red.class, 3, 1);
     }
 }

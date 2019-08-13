@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.*;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,10 +16,11 @@ import java.util.Date;
  */
 @Setter
 @Getter
-public abstract  class BaseEntity  implements Serializable {
+public abstract class BaseEntity implements Serializable {
 
 
     @Id
+    @Field("_id")
     private String id;
 
     @CreatedBy

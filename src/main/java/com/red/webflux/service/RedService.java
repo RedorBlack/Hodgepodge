@@ -1,7 +1,9 @@
 package com.red.webflux.service;
 
+
 import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.model.Red;
+import com.red.webflux.mongo.PageResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,4 +28,7 @@ public interface RedService {
     Mono<UpdateResult> updateByName(String[] ids, String name);
 
     Mono<Red> findByIdAndDeleteIsFalse(String id);
+
+
+    PageResult<Red> search();
 }
