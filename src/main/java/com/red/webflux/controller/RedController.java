@@ -4,6 +4,8 @@ import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.model.Red;
 import com.red.webflux.service.RedService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +25,13 @@ import javax.validation.Valid;
 public class RedController {
 
 
+
     @Autowired
     private RedService redService;
 
     @GetMapping
     public Flux<Red> findAll() {
-        log.debug("findAll Blog");
+        log.info("findAll Blog");
         return redService.findAll();
     }
 
@@ -36,13 +39,13 @@ public class RedController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Red> create(@Valid @RequestBody Red blog) {
-        log.debug("create Blog with blog : {}", blog);
+        log.info("create Blog with blog : {}", blog);
         return redService.createRed(blog);
     }
 
     @PutMapping("/{id}")
     public Mono<Red> updateBlog(@RequestBody Red blog, @PathVariable String id) {
-        log.debug("updateBlog Blog with id : {} and blog : {}", id, blog);
+        log.info("updateBlog Blog with id : {} and blog : {}", id, blog);
         return redService.update(blog, id);
     }
 
