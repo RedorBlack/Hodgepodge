@@ -1,14 +1,25 @@
 package com.red.webflux.service.impl;
 
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
+import com.red.webflux.repository.JpaDemoRepository;
+import com.red.webflux.dao.RedDemoMapper;
+import com.red.webflux.model.JpaDemo;
 import com.red.webflux.model.Red;
+import com.red.webflux.model.RedDemo;
+import com.red.webflux.model.RedDemoExample;
 import com.red.webflux.mongo.MongoPageHelper;
 import com.red.webflux.mongo.PageResult;
 import com.red.webflux.repository.RedRepository;
 import com.red.webflux.service.RedService;
+import org.apache.poi.ss.formula.functions.T;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,12 +42,21 @@ public class RedServiceImpl implements RedService {
 
 
     @Autowired
+    private RedDemoMapper redDemoMapper;
+    @Autowired
     private RedRepository redRepository;
 
     @Autowired
     private MongoPageHelper mongoPageHelper;
     @Autowired
     private MongoTemplate mongoTemplate;
+
+
+    /**
+     * jpa 分页
+     */
+    @Autowired
+    private JpaDemoRepository jpaDemoRepository;
 
     @Override
     public Mono<Red> createRed(Red red) {
@@ -86,10 +106,35 @@ public class RedServiceImpl implements RedService {
         return redRepository.findByIdAndDeleteIsFalse(id).switchIfEmpty(Mono.error(new Exception("没有查找到记录:" + id)));
     }
 
+    /**
+     * jpa 分页
+     *
+     * @param pageNum
+     * @param pageLimit
+     * @return
+     */
+    @Override
+    public Page<JpaDemo> getPage(Integer pageNum, Integer pageLimit) {
+        return jpaDemoRepository.findAll(PageRequest.of(pageNum, pageLimit, Sort.by("id")));
+    }
+
+    @Override
+    public Flux<List<JpaDemo>> getPageSort(Integer pageNum, Integer pageLimit) {
+        return null;
+    }
+
+
     @Override
     public PageResult<Red> search() {
         Query query = Query.query(Criteria.where("version").is(0));
         return mongoPageHelper.pageQuery(query, Red.class, 3, 1, a -> a, null);
 //        mongoPageHelper.pageQuery(query, Red.class, 3, 1);
+    }
+
+    @Override
+    public PageInfo<T> find() {
+        PageHelper.startPage(1, 20);
+        List<RedDemo> redDemos = redDemoMapper.findAll();
+        return new PageInfo(redDemos);
     }
 }
