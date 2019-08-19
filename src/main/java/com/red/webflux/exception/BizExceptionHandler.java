@@ -4,6 +4,7 @@ package com.red.webflux.exception;
 import com.red.webflux.eume.ApiEnum;
 import com.red.webflux.eume.ApiResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -72,5 +73,10 @@ public class BizExceptionHandler {
         return new ApiResult(ApiEnum.ERROR, ex.getMessage());
     }
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ApiResult illegalArgumentException(UsernameNotFoundException ex) {
+        return new ApiResult(ApiEnum.ERROR, ex.getMessage());
+
+    }
 
 }
