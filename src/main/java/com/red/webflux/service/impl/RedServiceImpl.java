@@ -1,20 +1,19 @@
 package com.red.webflux.service.impl;
 
-
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
+import com.red.webflux.model.MongoLog;
 import com.red.webflux.repository.JpaDemoRepository;
 import com.red.webflux.dao.RedDemoMapper;
 import com.red.webflux.model.JpaDemo;
 import com.red.webflux.model.Red;
 import com.red.webflux.model.RedDemo;
-import com.red.webflux.model.RedDemoExample;
 import com.red.webflux.mongo.MongoPageHelper;
 import com.red.webflux.mongo.PageResult;
+import com.red.webflux.repository.LogRepository;
 import com.red.webflux.repository.RedRepository;
 import com.red.webflux.service.RedService;
-import org.apache.poi.ss.formula.functions.T;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,7 +49,8 @@ public class RedServiceImpl implements RedService {
     private MongoPageHelper mongoPageHelper;
     @Autowired
     private MongoTemplate mongoTemplate;
-
+    @Autowired
+    private LogRepository logRepository;
 
     /**
      * jpa 分页
@@ -131,10 +131,30 @@ public class RedServiceImpl implements RedService {
 //        mongoPageHelper.pageQuery(query, Red.class, 3, 1);
     }
 
+
     @Override
-    public PageInfo<T> find() {
-        PageHelper.startPage(1, 20);
+    public Flux<PageInfo> querry(Integer pageNum, Integer pageSize) {
+        if (pageNum == null && pageNum == 0) {
+            pageNum = 1;
+        }
+        if (pageSize == null && pageSize == 0) {
+            pageSize = 20;
+        }
+        PageHelper.startPage(pageNum, pageSize);
         List<RedDemo> redDemos = redDemoMapper.findAll();
-        return new PageInfo(redDemos);
+        PageInfo pageInfo = new PageInfo<>(redDemos);
+        return Flux.just(pageInfo).doOnError(throwable -> {
+            Flux.error(throwable);
+        });
+    }
+
+    @Override
+    public Mono<MongoLog> insert(MongoLog mongoLog) {
+        return logRepository.insert(mongoLog);
+    }
+
+    @Override
+    public Flux<MongoLog> findLogs() {
+        return logRepository.findAll();
     }
 }

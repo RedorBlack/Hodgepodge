@@ -1,14 +1,19 @@
 package com.red.webflux.controller;
+
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
+import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
 import com.red.webflux.service.RedService;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -20,7 +25,7 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("/red/api")
+@RequestMapping("/api")
 public class RedController {
 
     @Autowired
@@ -54,6 +59,17 @@ public class RedController {
     @PostMapping("/update")
     public Mono<UpdateResult> updateByName(@RequestParam("name") String name, @RequestParam("ids") String[] ids) {
         return redService.updateByName(ids, name);
+    }
+
+    @GetMapping("/querry")
+    public Flux<PageInfo> querry() {
+        return redService.querry(1, 20);
+    }
+
+
+    @GetMapping("/findLogs")
+    public Flux<MongoLog> findLogs() {
+        return redService.findLogs();
     }
 
 }

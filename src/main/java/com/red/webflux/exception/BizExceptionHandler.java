@@ -2,7 +2,9 @@ package com.red.webflux.exception;
 
 
 import com.red.webflux.eume.ApiEnum;
-import com.red.webflux.eume.ApiResult;
+import com.red.webflux.eume.ResultBean;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.ObjectError;
@@ -32,7 +34,8 @@ public class BizExceptionHandler {
      * @return
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ApiResult resolveConstraintViolationException(ConstraintViolationException ex) {
+    public ResultBean resolveConstraintViolationException(ConstraintViolationException ex) {
+        ResultBean resultBean = null;
         Set<ConstraintViolation<?>> constraintViolations = ex.getConstraintViolations();
         if (CollectionUtils.isNotEmpty(constraintViolations)) {
             StringBuilder msgBuilder = new StringBuilder();
@@ -43,10 +46,9 @@ public class BizExceptionHandler {
             if (errorMessage.length() > 1) {
                 errorMessage = errorMessage.substring(0, errorMessage.length() - 1);
             }
-            return new ApiResult(ApiEnum.ERROR, errorMessage);
+            resultBean = ResultBean.error(ApiEnum.ERROR.getCode(), errorMessage);
         }
-        return new ApiResult(ApiEnum.ERROR, ex.getMessage());
-
+        return resultBean;
     }
 
     /**
@@ -57,7 +59,8 @@ public class BizExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
-    public ApiResult resolveMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResultBean resolveMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        ResultBean resultBean = null;
         List<ObjectError> objectErrors = ex.getBindingResult().getAllErrors();
         if (CollectionUtils.isNotEmpty(objectErrors)) {
             StringBuilder msgBuilder = new StringBuilder();
@@ -68,15 +71,61 @@ public class BizExceptionHandler {
             if (errorMessage.length() > 1) {
                 errorMessage = errorMessage.substring(0, errorMessage.length() - 1);
             }
-            return new ApiResult(ApiEnum.ERROR, errorMessage);
+            resultBean = ResultBean.error(ApiEnum.ERROR.getCode(), errorMessage);
         }
-        return new ApiResult(ApiEnum.ERROR, ex.getMessage());
+        return resultBean;
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ApiResult illegalArgumentException(UsernameNotFoundException ex) {
-        return new ApiResult(ApiEnum.ERROR, ex.getMessage());
 
+    /**
+     * jackson
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResultBean illegalArgumentException(IllegalArgumentException ex) {
+        return ResultBean.error(ApiEnum.ERROR.getCode(), ex.getMessage());
+
+    }
+
+    /**
+     * jwt token失效
+     *
+     * @param EX
+     * @return
+     */
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResultBean ExpiredJwtException(ExpiredJwtException EX) {
+        return ResultBean.error(ApiEnum.ERROR.getCode(), EX.getMessage());
+
+    }
+
+    /**
+     * 用户名未找到
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResultBean UsernameNotFoundException(UsernameNotFoundException ex) {
+        return ResultBean.error(ApiEnum.ERROR.getCode(), ex.getMessage());
+    }
+
+    /**
+     * token 格式不正确
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResultBean MalformedJwtException(MalformedJwtException ex) {
+        return ResultBean.error(ApiEnum.ERROR.getCode(), ex.getMessage());
+    }
+
+    @ExceptionHandler(TokenNotFunchException.class)
+    public ResultBean TokenNotFunchException(TokenNotFunchException ex) {
+        return ResultBean.error(ApiEnum.ERROR.getCode(), ex.getMsg());
     }
 
 }
