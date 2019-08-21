@@ -3,6 +3,8 @@ package com.red.webflux.controller;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
+import com.red.webflux.aop.annotation.Log;
+import com.red.webflux.aop.enums.LogType;
 import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
 import com.red.webflux.service.RedService;
@@ -26,12 +28,14 @@ import javax.validation.Valid;
 @Slf4j
 @RestController
 @RequestMapping("/api")
+@Log(title = "mongo")
 public class RedController {
 
     @Autowired
     private RedService redService;
 
     @GetMapping
+    @Log(logType = LogType.SELECT)
     @SentinelResource("findAll")
     public Flux<Red> findAll(HttpServletRequest request, HttpServletResponse response) {
         return redService.findAll();
@@ -67,6 +71,7 @@ public class RedController {
     }
 
 
+    @Log(logType = LogType.SELECT)
     @GetMapping("/findLogs")
     public Flux<MongoLog> findLogs() {
         return redService.findLogs();
