@@ -1,7 +1,11 @@
 package com.red.webflux.jwt;
 
+import com.alibaba.fastjson.JSONObject;
 import com.red.webflux.eume.ApiEnum;
+import com.red.webflux.eume.ResultBean;
+import com.red.webflux.exception.TokenNotFunchException;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jdk.nashorn.internal.parser.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,10 +42,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final String requestTokenHeader = request.getHeader("Authorization");
         String username = null;
         String jwtToken = null;
-        StringBuilder builder = new StringBuilder();
-        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-            jwtToken = requestTokenHeader.substring(7);
-            try {
+        try {
+            if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+                jwtToken = requestTokenHeader.substring(7);
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
@@ -53,22 +56,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                     }
                 }
-            } catch (IllegalArgumentException e) {
-                builder.append("Unable to get JWT Token");
-            } catch (ExpiredJwtException e) {
-                builder.append("JWT Token has expired");
-            } catch (UsernameNotFoundException ex) {
-                builder.append(ex.getMessage());
+            } else {
+                throw new TokenNotFunchException("JWT Token does not begin with Bearer String");
             }
-        } else {
-            logger.warn("JWT Token does not begin with Bearer String");
+        } catch (Exception ex) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(ex.getMessage());
+            request.setAttribute("error", builder.toString());
+        } finally {
+            chain.doFilter(request, response);
         }
-        String msg = builder.toString();
-        if (msg.length() > 0) {
-            msg = msg.substring(0, msg.length() - 1);
-            response.sendError(ApiEnum.ERROR.getCode(), msg);
-        }
-        chain.doFilter(request, response);
+
     }
 }
 

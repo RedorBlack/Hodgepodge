@@ -4,10 +4,9 @@ package com.red.webflux.service;
 import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.model.JpaDemo;
+import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
-import com.red.webflux.model.RedDemo;
 import com.red.webflux.mongo.PageResult;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Page;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -54,12 +53,36 @@ public interface RedService {
      */
     Flux<List<JpaDemo>> getPageSort(Integer pageNum, Integer pageLimit);
 
-    PageResult<Red> search();
-
     /**
-     * 分页
+     * mongo 分页
      *
      * @return
      */
-    PageInfo<T> find();
+    PageResult<Red> search();
+
+
+    /**
+     * 查询分页
+     *
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    Flux<PageInfo> querry(Integer pageNum, Integer pageSize);
+
+
+    /**
+     * 插入
+     *
+     * @param mongoLog
+     * @return
+     */
+    Mono<MongoLog> insert(MongoLog mongoLog);
+
+    /**
+     * 查询
+     * @return
+     */
+    Flux<MongoLog> findLogs();
+
 }
