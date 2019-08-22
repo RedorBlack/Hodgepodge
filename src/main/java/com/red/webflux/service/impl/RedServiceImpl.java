@@ -149,8 +149,8 @@ public class RedServiceImpl implements RedService {
     }
 
     @Override
-    public Mono<MongoLog> insert(MongoLog mongoLog) {
-        return logRepository.insert(mongoLog);
+    public void insert(MongoLog mongoLog) {
+        mongoTemplate.insert(mongoLog,"mongo_logs");
     }
 
     @Override

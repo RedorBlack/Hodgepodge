@@ -77,7 +77,7 @@ public interface RedService {
      * @param mongoLog
      * @return
      */
-    Mono<MongoLog> insert(MongoLog mongoLog);
+    void insert(MongoLog mongoLog);
 
     /**
      * 查询
