@@ -14,6 +14,7 @@ import com.red.webflux.mongo.PageResult;
 import com.red.webflux.repository.LogRepository;
 import com.red.webflux.repository.RedRepository;
 import com.red.webflux.service.RedService;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
  * @Date: 17:08 2019/8/1
  */
 @Service
+@Slf4j
 public class RedServiceImpl implements RedService {
 
 
@@ -148,9 +151,14 @@ public class RedServiceImpl implements RedService {
         });
     }
 
+
+    /**
+     * 异步加载
+     * @param mongoLog
+     */
     @Override
     public void insert(MongoLog mongoLog) {
-        mongoTemplate.insert(mongoLog,"mongo_logs");
+        mongoTemplate.insert(mongoLog, "mongo_logs");
     }
 
     @Override

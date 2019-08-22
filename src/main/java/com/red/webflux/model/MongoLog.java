@@ -3,6 +3,7 @@ package com.red.webflux.model;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.Map;
 
 /**
@@ -14,26 +15,20 @@ import java.util.Map;
 @Data
 public class MongoLog extends BaseEntity {
 
+    /**
+     * 标题
+     */
     @Field("title")
     private String title;
-    @Field("create_date")
-    private Long createDate;
-    @Field("created_Tester")
-    private String createdTest;
-    @Field("arguments")
-    private Object[] arguments;
+
+    /**
+     * 类名
+     */
     @Field("target_Name")
     private String targetName;
-    @Field("method_Name")
-    private String methodName;
-    private Object result;
+
     /**
-     * 日志内容
-     */
-    @Field(value = "content")
-    private String content;
-    /**
-     * 操作方式
+     * 日志类型
      */
     @Field(value = "log_type")
     private String logType;
@@ -56,6 +51,10 @@ public class MongoLog extends BaseEntity {
      */
     @Field(value = "operation_ip")
     private String operationIp;
+
+    /**
+     * user
+     */
     @Field(value = "operation_name")
     private String operationName;
     /**
@@ -78,4 +77,9 @@ public class MongoLog extends BaseEntity {
      */
     @Field(value = "status")
     private String status;
+
+
+    @Field("args")
+    private Object[] args;
+
 }

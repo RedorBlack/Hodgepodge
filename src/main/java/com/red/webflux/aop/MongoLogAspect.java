@@ -6,25 +6,15 @@ import com.red.webflux.model.MongoLog;
 import com.red.webflux.service.RedService;
 import com.red.webflux.util.IpUtils;
 import com.red.webflux.util.ServletUtils;
-
 import eu.bitwalker.useragentutils.UserAgent;
-
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-
-import javafx.concurrent.Task;
 
 /**
  * @Author: Red
@@ -34,6 +24,7 @@ import javafx.concurrent.Task;
 @Aspect
 @Component
 public class MongoLogAspect {
+
 
     /**
      * 切点
@@ -48,7 +39,7 @@ public class MongoLogAspect {
      */
     @AfterReturning(pointcut = "logPointCut()")
     public void doBefore(JoinPoint joinPoint) {
-        handleLog(joinPoint,null);
+        handleLog(joinPoint, null);
 
     }
 
@@ -57,7 +48,7 @@ public class MongoLogAspect {
      */
     @AfterThrowing(value = "logPointCut()", throwing = "e")
     public void doAfter(JoinPoint joinPoint, Exception e) {
-        handleLog(joinPoint,e);
+        handleLog(joinPoint, e);
     }
 
 
@@ -74,7 +65,6 @@ public class MongoLogAspect {
             }
             // 类注解
             Log clazzAnnotationLog = getClazzAnnotationLog(joinPoint);
-
             MongoLog log = new MongoLog();
             final UserAgent userAgent = UserAgent.parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
             String os = userAgent.getOperatingSystem().getName();
@@ -90,18 +80,18 @@ public class MongoLogAspect {
             // 设置方法名称
             String className = joinPoint.getTarget().getClass().getName();
             String methodName = joinPoint.getSignature().getName();
-            log.setMethodName(methodName);
+            log.setMethod(methodName);
             log.setTargetName(className);
-            if (clazzAnnotationLog != null) {
+            log.setLogType(methodAnnotationLog.logType().name());
+            if (clazzAnnotationLog != null && StringUtils.isNotBlank(clazzAnnotationLog.title())) {
                 log.setTitle(methodAnnotationLog.title());
             } else {
                 log.setTitle(clazzAnnotationLog.title());
             }
-            Object[] argsrequest = joinPoint.getArgs();
-            log.setArguments(argsrequest);
             if (methodAnnotationLog.requestParam()) {
                 log.setParams(ServletUtils.getRequest().getParameterMap());
             }
+            log.setArgs(joinPoint.getArgs());
             /**
              * 异步保存
              */
@@ -109,13 +99,13 @@ public class MongoLogAspect {
                 @Override
                 public void run() {
                     ApplicationContextProvider.getBean(RedService.class).insert(log);
-
                 }
             }).start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
+
     /**
      * 是否存在注解，如果存在就获取
      */
