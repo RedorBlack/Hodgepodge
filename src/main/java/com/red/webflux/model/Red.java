@@ -2,9 +2,6 @@ package com.red.webflux.model;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
-import javax.validation.constraints.NotNull;
-
 /**
  * @Author: Red
  * @Descpription:
@@ -14,15 +11,10 @@ import javax.validation.constraints.NotNull;
 @Data
 public class Red extends BaseEntity {
 
-
-
-    @NotNull(message = "name 不能为空")
     @Field("red_name")
     private String name;
-
     @Field("message")
     private String message;
-
     private int age;
 
 

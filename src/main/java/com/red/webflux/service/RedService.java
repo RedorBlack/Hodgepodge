@@ -8,6 +8,7 @@ import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
 import com.red.webflux.mongo.PageResult;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Async;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
