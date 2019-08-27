@@ -11,15 +11,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.util.List;
+
 
 /**
  * @Author: Red
  * @Descpription:
  * @Date: 17:06 2019/8/1
  */
-public interface RedService {
+public interface RedService  {
 
 
     Mono<Red> createRed(Red red);

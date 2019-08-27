@@ -1,18 +1,34 @@
 package com.red.webflux.controller;
+
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.aop.annotation.Log;
 import com.red.webflux.aop.enums.LogType;
 import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
+import com.red.webflux.service.PublisherService;
 import com.red.webflux.service.RedService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author: Red
@@ -25,8 +41,18 @@ import javax.validation.Valid;
 @Log(title = "mongo")
 public class RedController {
 
+
     @Autowired
     private RedService redService;
+
+    @Autowired
+    private KafkaTemplate kafkaTemplate;
+    @Autowired
+    @Qualifier("redis")
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private PublisherService publisherService;
 
     @GetMapping("/findAll")
     @Log(title = "查询", logType = LogType.SELECT)
@@ -39,6 +65,20 @@ public class RedController {
     @Log(title = "保存", logType = LogType.INSERT)
     public Mono<Red> create(@Valid @RequestBody Red blog) {
         log.info("create Blog with blog : {}", blog);
+
+        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send("red", JSON.toJSONString(blog));
+        future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
+
+            @Override
+            public void onSuccess(SendResult<String, Object> stringObjectSendResult) {
+                log.info("发送消息成功");
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.info("失败发送:" + throwable.getMessage());
+            }
+        });
         return redService.createRed(blog);
     }
 
@@ -69,6 +109,35 @@ public class RedController {
     @GetMapping("/findLogs")
     public Flux<MongoLog> findLogs() {
         return redService.findLogs();
+    }
+
+
+    @Log(logType = LogType.OTHER)
+    @GetMapping("/sendMsg")
+    public String sendMsg() {
+        publisherService.pushMsg("你好吗！！");
+        return "success";
+    }
+
+
+
+
+    public static void main(String[] args) {
+
+        Mono<String> stringMono = WebClient.builder().build()
+                .method(HttpMethod.GET)
+                .uri("http://www.baidu.com")
+                .exchange()
+                .flatMap(clientResponse -> {
+                    return clientResponse.bodyToMono(String.class);
+                }).onErrorMap(e -> new RuntimeException(e.getMessage(), e))
+                .doOnSuccess(JSON -> {
+                });
+    }
+
+
+    public String hello() {
+        return "hello";
     }
 
 }

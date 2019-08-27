@@ -17,6 +17,7 @@ import com.red.webflux.service.RedService;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -31,6 +33,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +58,9 @@ public class RedServiceImpl implements RedService {
     private MongoTemplate mongoTemplate;
     @Autowired
     private LogRepository logRepository;
+    @Autowired
+    @Qualifier("redis")
+    private RedisTemplate redisTemplate;
 
     /**
      * jpa 分页
@@ -68,6 +75,8 @@ public class RedServiceImpl implements RedService {
 
     @Override
     public Flux<Red> findAll() {
+        String[] ss = {"mm", "haha"};
+        redisTemplate.opsForList().leftPush("findAll",  Arrays.asList(ss));
         return redRepository.findAll();
     }
 
@@ -154,6 +163,7 @@ public class RedServiceImpl implements RedService {
 
     /**
      * 异步加载
+     *
      * @param mongoLog
      */
     @Override
@@ -165,4 +175,6 @@ public class RedServiceImpl implements RedService {
     public Flux<MongoLog> findLogs() {
         return logRepository.findAll();
     }
+
+
 }
