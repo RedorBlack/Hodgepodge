@@ -4,9 +4,12 @@ import com.red.webflux.model.RedDemo;
 import com.red.webflux.model.RedDemoExample;
 
 import java.util.List;
+import java.util.function.Function;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Repository;
 
 @Repository
