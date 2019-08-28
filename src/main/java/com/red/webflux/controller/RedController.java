@@ -17,6 +17,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.security.core.parameters.P;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -120,8 +122,6 @@ public class RedController {
     }
 
 
-
-
     public static void main(String[] args) {
 
         Mono<String> stringMono = WebClient.builder().build()
@@ -133,6 +133,7 @@ public class RedController {
                 }).onErrorMap(e -> new RuntimeException(e.getMessage(), e))
                 .doOnSuccess(JSON -> {
                 });
+
     }
 
 
