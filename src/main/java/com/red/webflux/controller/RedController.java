@@ -5,19 +5,24 @@ import com.github.pagehelper.PageInfo;
 import com.mongodb.client.result.UpdateResult;
 import com.red.webflux.aop.annotation.Log;
 import com.red.webflux.aop.enums.LogType;
+import com.red.webflux.jwt.JwtUtil;
 import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
 import com.red.webflux.service.PublisherService;
 import com.red.webflux.service.RedService;
+import java.security.Principal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +73,8 @@ public class RedController {
     public Mono<Red> create(@Valid @RequestBody Red blog) {
         log.info("create Blog with blog : {}", blog);
 
-        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send("red", JSON.toJSONString(blog));
+        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate
+                .send("red", JSON.toJSONString(blog));
         future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
 
             @Override
@@ -97,7 +103,8 @@ public class RedController {
     }
 
     @PostMapping("/update")
-    public Mono<UpdateResult> updateByName(@RequestParam("name") String name, @RequestParam("ids") String[] ids) {
+    public Mono<UpdateResult> updateByName(@RequestParam("name") String name,
+            @RequestParam("ids") String[] ids) {
         return redService.updateByName(ids, name);
     }
 
@@ -121,6 +128,25 @@ public class RedController {
         return "success";
     }
 
+    @GetMapping("getCurrentUsername")
+    public String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        if (principal instanceof Principal) {
+            return ((Principal) principal).getName();
+        }
+        return String.valueOf(principal);
+
+    }
+
+
+    @GetMapping("/test")
+    public ResponseEntity test(String name) {
+        return redService.testJdk8(name)
+                .orElseGet(() -> new ResponseEntity("", HttpStatus.MULTI_STATUS));
+    }
 
     public static void main(String[] args) {
 

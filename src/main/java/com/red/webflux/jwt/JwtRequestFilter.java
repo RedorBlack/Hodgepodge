@@ -1,27 +1,17 @@
 package com.red.webflux.jwt;
-
-import com.alibaba.fastjson.JSONObject;
-import com.red.webflux.eume.ApiEnum;
-import com.red.webflux.eume.ResultBean;
 import com.red.webflux.exception.TokenNotFunchException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import jdk.nashorn.internal.parser.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
 /**
  * @Author: Red
  * @Descpription: 拦截请求
@@ -54,6 +44,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         usernamePasswordAuthenticationToken
                                 .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                        SecurityContextHolder.getContext().getAuthentication().getCredentials();
                     }
                 }
             } else {

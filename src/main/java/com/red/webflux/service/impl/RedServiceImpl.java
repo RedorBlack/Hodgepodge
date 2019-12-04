@@ -1,8 +1,11 @@
 package com.red.webflux.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import com.mongodb.client.result.UpdateResult;
+import com.red.webflux.model.Either;
 import com.red.webflux.model.MongoLog;
 import com.red.webflux.repository.JpaDemoRepository;
 import com.red.webflux.dao.RedDemoMapper;
@@ -14,6 +17,7 @@ import com.red.webflux.mongo.PageResult;
 import com.red.webflux.repository.LogRepository;
 import com.red.webflux.repository.RedRepository;
 import com.red.webflux.service.RedService;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -76,7 +83,7 @@ public class RedServiceImpl implements RedService {
     @Override
     public Flux<Red> findAll() {
         String[] ss = {"mm", "haha"};
-        redisTemplate.opsForList().leftPush("findAll",  Arrays.asList(ss));
+        redisTemplate.opsForList().leftPush("findAll", Arrays.asList(ss));
         return redRepository.findAll();
     }
 
@@ -108,14 +115,17 @@ public class RedServiceImpl implements RedService {
             return objectId;
         }).collect(Collectors.toList());
         Query query = Query.query(Criteria.where("id").in(list));
-        return Mono.just(mongoTemplate.updateMulti(query, Update.update("red_name", name), Red.class)).doOnError(throwable -> {
-            Mono.error(throwable);
-        });
+        return Mono
+                .just(mongoTemplate.updateMulti(query, Update.update("red_name", name), Red.class))
+                .doOnError(throwable -> {
+                    Mono.error(throwable);
+                });
     }
 
     @Override
     public Mono<Red> findByIdAndDeleteIsFalse(String id) {
-        return redRepository.findByIdAndDeleteIsFalse(id).switchIfEmpty(Mono.error(new Exception("没有查找到记录:" + id)));
+        return redRepository.findByIdAndDeleteIsFalse(id)
+                .switchIfEmpty(Mono.error(new Exception("没有查找到记录:" + id)));
     }
 
     /**
@@ -176,5 +186,51 @@ public class RedServiceImpl implements RedService {
         return logRepository.findAll();
     }
 
+    @Override
+    public Optional<ResponseEntity> testJdk8(String name) {
+        Map<String, String> map = Maps.newHashMap();
+        map.put("hello", "nihao");
+        Optional<Map<String, String>> stringMap = Optional.ofNullable(map);
 
+        return Optional.ofNullable(
+                disposeResponsePair(
+                        stringMap.map(
+                                Either.liftWithValue(
+                                        stringStringMap -> {
+                                            ResponseEntity apiResult = new ResponseEntity(stringMap,
+                                                    HttpStatus.MULTI_STATUS);
+                                            //定义错误
+                                            if (stringStringMap.get("213").equals("11")) {
+                                                System.out.println("132");
+                                            }
+                                            return apiResult;
+                                        }))));
+    }
+
+
+    /**
+     * 处理包装的返回结果
+     *
+     * @param either
+     * @param <T>
+     * @return
+     */
+    public <T extends ResponseEntity> T disposeResponsePair(Optional<Either> either) {
+        if (either.isPresent()) {
+            Either entity = either.get();
+            if (entity.isLeft()) {
+                Optional<Pair> optional = entity.mapLeft(x -> x);
+                Object second = optional.get().getSecond();
+                System.out.println(JSON.toJSONString(second));
+                Exception first = (Exception) optional.get().getFirst();
+                System.out.println(JSON.toJSONString(first.getMessage()));
+                return (T) new ResponseEntity(first.getMessage(), HttpStatus.MULTI_STATUS);
+            } else {
+                Optional<Pair> optional = entity.mapRight(x -> x);
+                System.out.println(JSON.toJSONString(optional.get().getSecond()));
+                return (T) optional.get().getSecond();
+            }
+        }
+        return null;
+    }
 }

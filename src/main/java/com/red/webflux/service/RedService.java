@@ -7,7 +7,9 @@ import com.red.webflux.model.JpaDemo;
 import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
 import com.red.webflux.mongo.PageResult;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,7 +21,7 @@ import java.util.List;
  * @Descpription:
  * @Date: 17:06 2019/8/1
  */
-public interface RedService  {
+public interface RedService {
 
 
     Mono<Red> createRed(Red red);
@@ -82,8 +84,18 @@ public interface RedService  {
 
     /**
      * 查询
+     *
      * @return
      */
     Flux<MongoLog> findLogs();
+
+
+    /**
+     *  使用jdk 8
+     * @param name
+     * @return
+     */
+    Optional<ResponseEntity> testJdk8(String name);
+
 
 }

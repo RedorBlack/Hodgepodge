@@ -27,7 +27,7 @@ public class KafkaConsumer<T> {
          * @param record
          * @param topic  topic
          */
-//        @KafkaListener(id = "tut", topics = "kafka.tut")
+        @KafkaListener(id = "tut", topics = "kafka.tut")
         public void listen(ConsumerRecord<?, ?> record, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
             Optional<?> kafkaMessage = Optional.ofNullable(record.value());
 
