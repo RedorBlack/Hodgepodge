@@ -26,6 +26,7 @@ public class FileUtil {
 
     /**
      * 导出实体类
+     *
      * @param list
      * @param title
      * @param sheetName
@@ -34,22 +35,26 @@ public class FileUtil {
      * @param isCreateHeader
      * @param response
      */
-    public static void exportExcel(List<?> list, String title, String sheetName, Class<?> pojoClass, String fileName, boolean isCreateHeader, HttpServletResponse response){
+    public static void exportExcel(List<?> list, String title, String sheetName, Class<?> pojoClass, String fileName, boolean isCreateHeader, HttpServletResponse response) {
         ExportParams exportParams = new ExportParams(title, sheetName);
         exportParams.setCreateHeadRows(isCreateHeader);
         defaultExport(list, pojoClass, fileName, response, exportParams);
 
     }
-    public static void exportExcel(List<?> list, String title, String sheetName, Class<?> pojoClass,String fileName, HttpServletResponse response){
+
+    public static void exportExcel(List<?> list, String title, String sheetName, Class<?> pojoClass, String fileName, HttpServletResponse response) {
         defaultExport(list, pojoClass, fileName, response, new ExportParams(title, sheetName));
     }
-    public static void exportExcel(List<Map<String, Object>> list, String fileName, HttpServletResponse response){
+
+    public static void exportExcel(List<Map<String, Object>> list, String fileName, HttpServletResponse response) {
         defaultExport(list, fileName, response);
     }
 
     private static void defaultExport(List<?> list, Class<?> pojoClass, String fileName, HttpServletResponse response, ExportParams exportParams) {
-        Workbook workbook = ExcelExportUtil.exportExcel(exportParams,pojoClass,list);
-        if (workbook != null);
+        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, pojoClass, list);
+        if (workbook != null) {
+            ;
+        }
         downLoadExcel(fileName, response, workbook);
     }
 
@@ -64,14 +69,15 @@ public class FileUtil {
             throw new RuntimeException(e.getMessage());
         }
     }
+
     private static void defaultExport(List<Map<String, Object>> list, String fileName, HttpServletResponse response) {
         Workbook workbook = ExcelExportUtil.exportExcel(list, ExcelType.HSSF);
-        if (workbook != null);
+        if (workbook != null) ;
         downLoadExcel(fileName, response, workbook);
     }
 
-    public static <T> List<T> importExcel(String filePath,Integer titleRows,Integer headerRows, Class<T> pojoClass){
-        if (StringUtils.isBlank(filePath)){
+    public static <T> List<T> importExcel(String filePath, Integer titleRows, Integer headerRows, Class<T> pojoClass) {
+        if (StringUtils.isBlank(filePath)) {
             return null;
         }
         ImportParams params = new ImportParams();
@@ -80,7 +86,7 @@ public class FileUtil {
         List<T> list = null;
         try {
             list = ExcelImportUtil.importExcel(new File(filePath), pojoClass, params);
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new RuntimeException("模板不能为空");
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,8 +94,9 @@ public class FileUtil {
         }
         return list;
     }
-    public static <T> List<T> importExcel(MultipartFile file, Integer titleRows, Integer headerRows, Class<T> pojoClass){
-        if (file == null){
+
+    public static <T> List<T> importExcel(MultipartFile file, Integer titleRows, Integer headerRows, Class<T> pojoClass) {
+        if (file == null) {
             return null;
         }
         ImportParams params = new ImportParams();
@@ -98,7 +105,7 @@ public class FileUtil {
         List<T> list = null;
         try {
             list = ExcelImportUtil.importExcel(file.getInputStream(), pojoClass, params);
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new RuntimeException("excel文件不能为空");
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
