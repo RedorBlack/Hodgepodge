@@ -9,7 +9,10 @@ import com.red.webflux.model.MongoLog;
 import com.red.webflux.model.Red;
 import com.red.webflux.service.PublisherService;
 import com.red.webflux.service.RedService;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,17 +20,23 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.parameters.P;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import sun.security.util.Resources_de;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -123,16 +132,27 @@ public class RedController {
 
 
     public static void main(String[] args) {
+ Map hh;
+        Map map = new HashMap<String, String>();
+        map.put("code", "haha");
+        map.put("msg", "hahahha");
 
-        Mono<String> stringMono = WebClient.builder().build()
-                .method(HttpMethod.GET)
-                .uri("http://www.baidu.com")
-                .exchange()
-                .flatMap(clientResponse -> {
-                    return clientResponse.bodyToMono(String.class);
-                }).onErrorMap(e -> new RuntimeException(e.getMessage(), e))
-                .doOnSuccess(JSON -> {
-                });
+        if (MapUtils.getBoolean(map, "code")) {
+            System.out.println("haha");
+        }
+        if (MapUtils.isNotEmpty(map)) {
+            System.out.println("123");
+        }
+
+//        Mono<String> stringMono = WebClient.builder().build()
+//            .method(HttpMethod.GET)
+//            .uri("http://www.baidu.com")
+//            .exchange()
+//            .flatMap(clientResponse -> {
+//                return clientResponse.bodyToMono(String.class);
+//            }).onErrorMap(e -> new RuntimeException(e.getMessage(), e))
+//            .doOnSuccess(JSON -> {
+//            });
 
     }
 

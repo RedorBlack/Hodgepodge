@@ -66,7 +66,8 @@ public class MongoLogAspect {
             // 类注解
             Log clazzAnnotationLog = getClazzAnnotationLog(joinPoint);
             MongoLog log = new MongoLog();
-            final UserAgent userAgent = UserAgent.parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
+            final UserAgent userAgent = UserAgent
+                    .parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
             String os = userAgent.getOperatingSystem().getName();
             log.setOs(os);
             log.setBrowser(userAgent.getBrowser().getName());
@@ -95,12 +96,8 @@ public class MongoLogAspect {
             /**
              * 异步保存
              */
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ApplicationContextProvider.getBean(RedService.class).insert(log);
-                }
-            }).start();
+            new Thread(() ->
+                    ApplicationContextProvider.getBean(RedService.class).insert(log)).start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

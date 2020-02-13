@@ -143,7 +143,6 @@ public class PoiController {
                 }
             }
             ExcelExportUtil.closeExportBigExcel();
-            System.out.println(new Date().getTime() - start.getTime());
             File savefile = new File("E:/excel/");
             if (!savefile.exists()) {
                 savefile.mkdirs();
