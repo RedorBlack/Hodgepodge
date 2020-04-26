@@ -5,8 +5,8 @@ package com.red.webflux.redis;
  * @Descpription:
  * @Date: 16:28 2019/8/27
  */
-public class Const {
+public interface Const {
 
     //通道名称
-    public static final String CHANNEL = "test_channel";
+    String CHANNEL = "test_channel";
 }
